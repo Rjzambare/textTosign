@@ -1,4 +1,22 @@
+// import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+
+// Third iteration
+
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+
+// WebSocket connection
+const socket = io(); // Ensure `socket.io` is included in your project
+
+socket.on('submit_event', (data) => {
+    const message = data.message;
+    const formEvent = new Event('submit', { bubbles: true, cancelable: true });
+    const form = document.getElementById('inputForm');
+    const textarea = document.getElementById('message');
+
+    textarea.value = message; // Set the value in the form
+    form.dispatchEvent(formEvent); // Trigger the event programmatically
+});
+// third iteration ended
 
 var label = document.getElementById("label")
 
@@ -9,8 +27,8 @@ const near = 0.1;
 const far = 1000;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color( 0x253238 );
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far); 
+scene.background = new THREE.Color(0x253238);
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -18,10 +36,10 @@ container.appendChild(renderer.domElement);
 
 var wordList = []
 var wordidx = 0;
-var frameidx=0;
+var frameidx = 0;
 
 var textForm = document.getElementById("inputForm");
-textForm.addEventListener("submit", function(e) {
+textForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var message = document.getElementById("message").value;
     wordList = message.split(" ");
@@ -32,24 +50,24 @@ textForm.addEventListener("submit", function(e) {
 
 fetch('static/json/reference.json') //fetches json data (very slow)
     .then(response => response.json())
-    .then(data => { 
-        function drawPoint(x, y, z){
+    .then(data => {
+        function drawPoint(x, y, z) {
             const pointRadius = 0.25;
-            const geometry = new THREE.SphereGeometry( pointRadius, 32, 16 );
-            const material = new THREE.MeshBasicMaterial( { color: 0x84FFFF } );
-            const sphere = new THREE.Mesh( geometry, material ); scene.add(sphere);
+            const geometry = new THREE.SphereGeometry(pointRadius, 32, 16);
+            const material = new THREE.MeshBasicMaterial({ color: 0x84FFFF });
+            const sphere = new THREE.Mesh(geometry, material); scene.add(sphere);
             sphere.position.x = x;
             sphere.position.y = y;
             sphere.position.z = z;
         }
 
-        function drawLine(x1, y1, z1, x2, y2, z2){
+        function drawLine(x1, y1, z1, x2, y2, z2) {
             const points = [];
-            points.push (new THREE.Vector3(x1, y1, z1));
-            points.push (new THREE.Vector3(x2, y2, z2));
-            const geometry = new THREE.BufferGeometry().setFromPoints( points );
-            const material = new THREE.LineBasicMaterial( { color: 0xFFFFFF } );
-            const line = new THREE.Line( geometry, material );
+            points.push(new THREE.Vector3(x1, y1, z1));
+            points.push(new THREE.Vector3(x2, y2, z2));
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: 0xFFFFFF });
+            const line = new THREE.Line(geometry, material);
             scene.add(line);
         }
 
@@ -63,28 +81,28 @@ fetch('static/json/reference.json') //fetches json data (very slow)
             }
         }
 
-        function connectLines(frameidx){
-            const edgeList = [[0,1],[1,2], [2,3], [3,4], [0,5], [5,6], [6,7], [7,8], [5,9], [9,10], [10,11], [11,12], [9,13], [13,14], [14,15], [15,16], [13,17], [17,18], [18,19], [19,20], [0,17]];
+        function connectLines(frameidx) {
+            const edgeList = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]];
             var left = data[wordList[wordidx]][frameidx]['Left Hand Coordinates'];
             var right = data[wordList[wordidx]][frameidx]['Right Hand Coordinates'];
 
             redistributeElements(left, right);
-            
-            edgeList.forEach(function(edge){
+
+            edgeList.forEach(function (edge) {
                 const u = edge[0];
                 const v = edge[1];
-                if (left[u] && left[v]){
+                if (left[u] && left[v]) {
                     const l1 = left[u]['Coordinates'];
                     const l2 = left[v]['Coordinates'];
-                    drawLine(l1[0]*50, l1[1]*-50, l1[2]*50, l2[0]*50, l2[1]*-50, l2[2]*50);
+                    drawLine(l1[0] * 50, l1[1] * -50, l1[2] * 50, l2[0] * 50, l2[1] * -50, l2[2] * 50);
                 }
-                if (right[u] && right[v]){
+                if (right[u] && right[v]) {
                     const r1 = right[u]['Coordinates'];
                     const r2 = right[v]['Coordinates'];
-                    drawLine(r1[0]*50, r1[1]*-50, r1[2]*50, r2[0]*50, r2[1]*-50, r2[2]*50);
+                    drawLine(r1[0] * 50, r1[1] * -50, r1[2] * 50, r2[0] * 50, r2[1] * -50, r2[2] * 50);
                 }
             })
-        } 
+        }
 
         let clock = new THREE.Clock();
         let delta = 0;
@@ -93,40 +111,40 @@ fetch('static/json/reference.json') //fetches json data (very slow)
         function render() {
             requestAnimationFrame(render);
             delta += clock.getDelta();
-            
-            if (delta > interval){
+
+            if (delta > interval) {
                 delta = delta % interval;
 
-                if(wordList.length > 0 && wordidx < wordList.length){
+                if (wordList.length > 0 && wordidx < wordList.length) {
 
-                label.innerHTML = wordList[wordidx].toUpperCase();
-
-                var left = data[wordList[wordidx]][frameidx]['Left Hand Coordinates'];
-                var right = data[wordList[wordidx]][frameidx]['Right Hand Coordinates'];
-
-                left.forEach(function(joint) { 
-                    drawPoint(joint['Coordinates'][0]*50, joint['Coordinates'][1]*-50, joint['Coordinates'][2]*50);
-                })
-                right.forEach(function(joint) {
-                    drawPoint(joint['Coordinates'][0]*50, joint['Coordinates'][1]*-50, joint['Coordinates'][2]*50);
-                })
-                connectLines(frameidx);
-
-                frameidx++;
-                if(frameidx >= data[wordList[wordidx]].length){
-                    frameidx = 0;
-                    wordidx++;
                     label.innerHTML = wordList[wordidx].toUpperCase();
+
+                    var left = data[wordList[wordidx]][frameidx]['Left Hand Coordinates'];
+                    var right = data[wordList[wordidx]][frameidx]['Right Hand Coordinates'];
+
+                    left.forEach(function (joint) {
+                        drawPoint(joint['Coordinates'][0] * 50, joint['Coordinates'][1] * -50, joint['Coordinates'][2] * 50);
+                    })
+                    right.forEach(function (joint) {
+                        drawPoint(joint['Coordinates'][0] * 50, joint['Coordinates'][1] * -50, joint['Coordinates'][2] * 50);
+                    })
+                    connectLines(frameidx);
+
+                    frameidx++;
+                    if (frameidx >= data[wordList[wordidx]].length) {
+                        frameidx = 0;
+                        wordidx++;
+                        label.innerHTML = wordList[wordidx].toUpperCase();
+                    }
                 }
-                }
-                else{
+                else {
                     label.innerHTML = "N/A";
                 }
                 renderer.render(scene, camera);
                 scene.remove.apply(scene, scene.children);
             }
-        }   
-        
+        }
+
         render();
     })
 
